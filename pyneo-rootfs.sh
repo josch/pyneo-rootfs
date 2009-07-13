@@ -25,7 +25,7 @@ done
 # cdebotstrap
 DEPS_SYSTEM="udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils,libts-bin"
-DEPS_WLAN="wireless-tools,wpasupplicant"
+DEPS_WLAN="wpasupplicant"
 DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
 DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dhcp3-client"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
@@ -185,7 +185,7 @@ fi
 
 # install audio
 if $ALSA; then
-	chroot $ROOTDIR apt-get install alsa-base alsa-utils gstreamer0.10-alsa gstreamer0.10-plugins-good gstreamer0.10-plugins-bad gstreamer0.10-plugins-ugly -qq
+	chroot $ROOTDIR apt-get install alsa-base alsa-utils gstreamer0.10-alsa gstreamer0.10-plugins-good gstreamer0.10-plugins-bad gstreamer0.10-plugins-ugly gstreamer-tools -qq
 	# /etc/asound.conf
 	cat > $ROOTDIR/etc/asound.conf << __END__
 pcm.!default {
