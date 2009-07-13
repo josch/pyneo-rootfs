@@ -221,7 +221,7 @@ curl http://pyneo.org/downloads/gta0x/zImage-$KERNEL_VER-pyneo.bin > $ROOTDIR/bo
 ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA01.bin
 ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA02.bin
 echo "console=tty0 rootdelay=3 " > $ROOTDIR/boot/append-GTA01
-echo "console=tty0 rootdelay=1 " > $ROOTDIR/boot/append-GTA02
+echo "console=tty0 rootdelay=3 " > $ROOTDIR/boot/append-GTA02
 # modules
 curl http://pyneo.org/downloads/gta0x/modules-$KERNEL_VER-pyneo.tar.lzma | tar --lzma -xf - -C $ROOTDIR
 
