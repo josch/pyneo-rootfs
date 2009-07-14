@@ -36,6 +36,8 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
+# /etc/syslog.conf
+echo "*.* @host" > $ROOTDIR/etc/syslog.conf
 # /etc/hosts
 echo "127.0.0.1 localhost" > $ROOTDIR/etc/hosts
 # /etc/resolv.conf
