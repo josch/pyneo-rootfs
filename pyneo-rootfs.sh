@@ -222,7 +222,11 @@ echo "Calibrating Touchscreen."
 if [ \$DEVICE = "gta01" ]; then
 	echo -67 36365 -2733100 -48253 -310 45219816 65536 > /etc/pointercal
 	echo "Appending MAC address to kernel boot parameters."
-	echo -n " g_ether.host_addr=\`ifconfig -a | awk '/^usb0/{print \$5}'\`" >> /boot/append-GTA01
+	[ -d /home/persistant ] || mkdir /home/persistant
+	if [ ! -f /home/persistant/mac ]; then
+		echo \`ifconfig -a | awk '/^usb0/{print \$5}'\` > /home/persistant/mac
+	fi
+	echo -n " g_ether.host_addr=\`head -n 1 /home/persistant/mac\`" >> /boot/append-GTA01
 	echo "Appending sound module."
 	echo "snd-soc-neo1973-wm8753" > /etc/modules
 	echo "Configuring host alias."
