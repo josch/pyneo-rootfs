@@ -93,6 +93,8 @@ sed -i 's/\(BLANK_TIME\)=30/\1=0/' $ROOTDIR/etc/console-tools/config
 sed -i "s/\([2-6]:23:respawn:\/sbin\/getty 38400 tty[2-6]\)/#\1/" $ROOTDIR/etc/inittab
 # enable fs fixes
 sed -i "s/\(FSCKFIX=\)no/\1yes/" $ROOTDIR/etc/default/rcS
+# let netplugd manage usb0
+echo usb0 >> $ROOTDIR/etc/netplug/netplugd.conf
 
 # add default user
 chroot $ROOTDIR useradd user -p //plGAV7Hp3Zo -s /bin/bash
