@@ -31,8 +31,7 @@ for PROC in "hald" "dbus-daemon" "gsm0710muxd" "pyneod"; do
 done
 
 # cdebotstrap
-cdebootstrap --include ifupdown,udev,netbase,vim-tiny,module-init-tools,curl,wget,openssh-server,screen,less,rsyslog,psmisc,rsync,console-tools,iputils-ping,mtd-utils,wireless-tools,conspy,console-setup-mini --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
-#debootstrap --unpack-tarball=`pwd`/deboot-sid.tgz --include ifupdown,udev,netbase,vim-tiny,module-init-tools,curl,wget,openssh-server,screen,less,rsyslog,psmisc,rsync,console-tools,iputils-ping,mtd-utils,wireless-tools,conspy,console-setup-mini,install-info --variant=minbase $DIST $ROOTDIR http://ftp.debian.org/debian
+cdebootstrap --include ifupdown,udev,netbase,vim-tiny,module-init-tools,curl,wget,openssh-server,screen,less,rsyslog,psmisc,rsync,console-tools,iputils-ping,mtd-utils,wireless-tools,conspy,console-setup-mini,dhcdbd,dhcp3-client,dnsmasq,bluetooth,bluez,bluez-utils,bluez-alsa,bluez-gstreamer,netplug,nodm,rdate,klogd,vpnc,wpasupplicant --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
 if [ -n "`cat $ROOTDIR/etc/apt/sources.list | grep invalid`" ]; then
 	echo "debootstrap failed"
