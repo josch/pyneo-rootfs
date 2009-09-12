@@ -208,12 +208,27 @@ echo "nameserver localhost" > $ROOTDIR/etc/resolv.conf
 cat > $ROOTDIR/usr/sbin/firstboot.sh << __END__
 #!/bin/sh
 rm -f /etc/rcS.d/S99firstboot
+[ -d /home/persistant ] || mkdir /home/persistant
+
 echo "Running automatic first boot tasks."
 
-echo -n "Generating ssh host key pairs:"
-echo -n " rsa..."; /usr/bin/ssh-keygen -q -t rsa -f /etc/ssh/ssh_host_rsa_key -C '' -N ''
-echo -n " dsa..."; /usr/bin/ssh-keygen -q -t dsa -f /etc/ssh/ssh_host_dsa_key -C '' -N ''
-echo "done."
+# generat new ssh host keys if one of the files is not in place
+if [ ! -f /home/persistant/ssh_host_rsa_key ] ||
+   [ ! -f /home/persistant/ssh_host_rsa_key.pub ] ||
+   [ ! -f /home/persistant/ssh_host_dsa_key ] ||
+   [ ! -f /home/persistant/ssh_host_dsa_key.pub ]; then
+	# make sure none of the files still exists
+	[ -f /home/persistant/ssh_host_rsa_key ] || rm /home/persistant/ssh_host_rsa_key
+	[ -f /home/persistant/ssh_host_rsa_key.pub ] || rm /home/persistant/ssh_host_rsa_key
+	[ -f /home/persistant/ssh_host_dsa_key ] || rm /home/persistant/ssh_host_dsa_key
+	[ -f /home/persistant/ssh_host_dsa_key.pub ] || rm /home/persistant/ssh_host_dsa_key.pub
+	echo -n "Generating ssh host key pairs:"
+	echo -n " rsa..."; /usr/bin/ssh-keygen -q -t rsa -f /home/persistant/ssh_host_rsa_key -C '' -N ''
+	echo -n " dsa..."; /usr/bin/ssh-keygen -q -t dsa -f /home/persistant/ssh_host_dsa_key -C '' -N ''
+	echo "done."
+fi
+echo "Copying ssh host keys into place."
+cp /home/persistant/ssh_host_rsa_key /home/persistant/ssh_host_rsa_key.pub /home/persistant/ssh_host_dsa_key /home/persistant/ssh_host_dsa_key.pub /etc/ssh/
 
 DEVICE="\`awk '/^Hardware/ {print \$3}' < /proc/cpuinfo | tr \"[:upper:]\" \"[:lower:]\"\`"
 echo "Running on \$DEVICE."
@@ -222,7 +237,6 @@ echo "Calibrating Touchscreen."
 if [ \$DEVICE = "gta01" ]; then
 	echo -67 36365 -2733100 -48253 -310 45219816 65536 > /etc/pointercal
 	echo "Appending MAC address to kernel boot parameters."
-	[ -d /home/persistant ] || mkdir /home/persistant
 	if [ ! -f /home/persistant/mac ]; then
 		echo \`ifconfig -a | awk '/^usb0/{print \$5}'\` > /home/persistant/mac
 	fi
