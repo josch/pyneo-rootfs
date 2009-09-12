@@ -31,7 +31,7 @@ for PROC in "hald" "dbus-daemon" "gsm0710muxd" "pyneod"; do
 done
 
 # cdebotstrap
-cdebootstrap --include ifupdown,udev,netbase,vim-tiny,module-init-tools,curl,wget,openssh-server,screen,less,rsyslog,psmisc,rsync,console-tools,iputils-ping,mtd-utils,wireless-tools,conspy,console-setup-mini,dhcdbd,dhcp3-client,dnsmasq,bluetooth,bluez,bluez-utils,bluez-alsa,bluez-gstreamer,netplug,rdate,klogd,vpnc,wpasupplicant --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
+cdebootstrap --include ifupdown,udev,netbase,vim-tiny,module-init-tools,curl,wget,openssh-server,screen,less,rsyslog,psmisc,rsync,console-tools,iputils-ping,mtd-utils,wireless-tools,conspy,console-setup-mini,dhcdbd,dhcp3-client,dnsmasq,bluetooth,bluez,bluez-utils,bluez-alsa,bluez-gstreamer,netplug,rdate,klogd,vpnc,wpasupplicant,ntpdate --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
 if [ -n "`cat $ROOTDIR/etc/apt/sources.list | grep invalid`" ]; then
 	echo "debootstrap failed"
@@ -215,10 +215,6 @@ echo -n " rsa..."; /usr/bin/ssh-keygen -q -t rsa -f /etc/ssh/ssh_host_rsa_key -C
 echo -n " dsa..."; /usr/bin/ssh-keygen -q -t dsa -f /etc/ssh/ssh_host_dsa_key -C '' -N ''
 echo "done."
 
-echo -n "Updating package index..."
-apt-get update -qq
-echo "done."
-
 DEVICE="\`awk '/^Hardware/ {print \$3}' < /proc/cpuinfo | tr \"[:upper:]\" \"[:lower:]\"\`"
 echo "Running on \$DEVICE."
 
@@ -265,6 +261,12 @@ hostname "\$DEVICE"
 echo "Bringing up usb networking."
 ifup usb0
 
+echo "Updating datetime."
+ntpdate-debian
+
+echo -n "Updating package index..."
+apt-get update -qq
+echo "done."
 __END__
 chmod +x $ROOTDIR/usr/sbin/firstboot.sh
 ln -sf /usr/sbin/firstboot.sh $ROOTDIR/etc/rcS.d/S99firstboot
