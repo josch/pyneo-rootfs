@@ -142,6 +142,14 @@ Section "Device"
        Identifier      "Configured Video Device"
        Driver          "fbdev"
 EndSection
+Section "InputDevice"
+        Identifier      "Configured Touchscreen"
+        Driver          "tslib"
+        Option          "CorePointer"           "true"
+        Option          "SendCoreEvents"        "true"
+        Option          "Device"                "/dev/input/event1"
+        Option          "Protocol"              "Auto"
+EndSection
 __END__
 	echo 'exec matchbox-window-manager -use_titlebar no -use_cursor no' > $ROOTDIR/home/user/.xsession
 	# configure nodm
