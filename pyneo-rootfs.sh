@@ -31,7 +31,7 @@ for PROC in "hald" "dbus-daemon" "gsm0710muxd" "pyneod"; do
 done
 
 # cdebotstrap
-DEPS_SYSTEM="udev,module-init-tools,rsyslog,klogd,psmisc,mtd-utils,ntpdate"
+DEPS_SYSTEM="udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini"
 DEPS_WLAN="wireless-tools,wpasupplicant"
 DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
