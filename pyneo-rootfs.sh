@@ -90,7 +90,7 @@ sed -i 's/\(root:\)[^:]*\(:\)/\1\/\/plGAV7Hp3Zo\2/' $ROOTDIR/etc/shadow
 echo LANG=C > $ROOTDIR/etc/default/locale
 echo set debconf/frontend Teletype | chroot $ROOTDIR debconf-communicate
 # disable startup message of screen
-startup_message off >> $ROOTDIR/etc/screenrc
+echo startup_message off >> $ROOTDIR/etc/screenrc
 # let vim be vim
 echo "set nocp" >> $ROOTDIR/etc/vim/vimrc
 # disable console blanking
