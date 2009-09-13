@@ -101,6 +101,15 @@ sed -i "s/\([2-6]:23:respawn:\/sbin\/getty 38400 tty[2-6]\)/#\1/" $ROOTDIR/etc/i
 sed -i "s/\(FSCKFIX=\)no/\1yes/" $ROOTDIR/etc/default/rcS
 # let netplugd manage usb0
 echo usb0 >> $ROOTDIR/etc/netplug/netplugd.conf
+# configure dnsmasq
+cat > $ROOTDIR/etc/dnsmasq.d/pyneo << __END__
+no-resolv
+no-poll
+enable-dbus
+log-queries
+clear-on-reload
+domain-needed
+__END__
 
 # add default user
 chroot $ROOTDIR useradd user -p //plGAV7Hp3Zo -s /bin/bash
