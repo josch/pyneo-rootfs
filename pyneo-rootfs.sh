@@ -39,8 +39,8 @@ DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dnsmasq,dhcp3-client,netplug"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
 cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_WLAN,$DEPS_BT,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
-if [ -n "`cat $ROOTDIR/etc/apt/sources.list | grep invalid`" ]; then
-	echo "debootstrap failed"
+if [ $? -ne 0 ]; then
+	echo "cdebootstrap failed"
 	exit 1
 fi
 
