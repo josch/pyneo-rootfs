@@ -144,6 +144,17 @@ Section "Device"
 EndSection
 __END__
 	echo 'exec matchbox-window-manager -use_titlebar no -use_cursor no' > $ROOTDIR/home/user/.xsession
+	# configure nodm
+	cat > $ROOTDIR/etc/default/nodm << __END__
+NODM_ENABLED=true
+NODM_USER=user
+NODM_XINIT=/usr/bin/xinit
+NODM_FIRST_VT=0
+NODM_XSESSION=/etc/X11/Xsession
+NODM_X_OPTIONS='-nolisten tcp'
+NODM_MIN_SESSION_TIME=60
+__END__
+	echo allowed_users=anybody > $ROOTDIR/etc/X11/Xwrapper.config
 fi
 
 # install pyneo
