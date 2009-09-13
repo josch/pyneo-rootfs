@@ -244,10 +244,10 @@ if [ ! -f /home/persistant/ssh_host_rsa_key ] ||
    [ ! -f /home/persistant/ssh_host_dsa_key ] ||
    [ ! -f /home/persistant/ssh_host_dsa_key.pub ]; then
 	# make sure none of the files still exists
-	[ -f /home/persistant/ssh_host_rsa_key ] || rm /home/persistant/ssh_host_rsa_key
-	[ -f /home/persistant/ssh_host_rsa_key.pub ] || rm /home/persistant/ssh_host_rsa_key
-	[ -f /home/persistant/ssh_host_dsa_key ] || rm /home/persistant/ssh_host_dsa_key
-	[ -f /home/persistant/ssh_host_dsa_key.pub ] || rm /home/persistant/ssh_host_dsa_key.pub
+	[ ! -f /home/persistant/ssh_host_rsa_key ] || rm /home/persistant/ssh_host_rsa_key
+	[ ! -f /home/persistant/ssh_host_rsa_key.pub ] || rm /home/persistant/ssh_host_rsa_key
+	[ ! -f /home/persistant/ssh_host_dsa_key ] || rm /home/persistant/ssh_host_dsa_key
+	[ ! -f /home/persistant/ssh_host_dsa_key.pub ] || rm /home/persistant/ssh_host_dsa_key.pub
 	echo -n "Generating ssh host key pairs:"
 	echo -n " rsa..."; /usr/bin/ssh-keygen -q -t rsa -f /home/persistant/ssh_host_rsa_key -C '' -N ''
 	echo -n " dsa..."; /usr/bin/ssh-keygen -q -t dsa -f /home/persistant/ssh_host_dsa_key -C '' -N ''
