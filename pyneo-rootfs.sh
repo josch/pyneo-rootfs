@@ -111,10 +111,6 @@ clear-on-reload
 domain-needed
 __END__
 
-# add default user
-chroot $ROOTDIR useradd user -p //plGAV7Hp3Zo -s /bin/bash
-mkdir $ROOTDIR/home/user
-
 # add enlightenment repository
 if $EFL; then
 	echo deb http://packages.enlightenment.org/debian lenny main extras >> $ROOTDIR/etc/apt/sources.list
@@ -151,7 +147,7 @@ Section "InputDevice"
         Option          "Protocol"              "Auto"
 EndSection
 __END__
-	echo 'exec matchbox-window-manager -use_titlebar no -use_cursor no' > $ROOTDIR/home/user/.xsession
+	echo 'exec matchbox-window-manager -use_titlebar no -use_cursor no' > $ROOTDIR/etc/skel/.xsession
 	# configure nodm
 	cat > $ROOTDIR/etc/default/nodm << __END__
 NODM_ENABLED=true
@@ -302,6 +298,9 @@ __HOSTS__
 	echo "Adjusting /etc/fstab."
 	echo "/dev/mtdblock6  /media/nand     jffs2   defaults,noatime                   0      0" >> /etc/fstab
 fi
+
+echo "Creating new user"
+useradd user -p //plGAV7Hp3Zo -s /bin/bash --create-home
 
 echo "Mounting NAND."
 mount /media/nand
