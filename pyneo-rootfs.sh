@@ -2,7 +2,7 @@
 
 ROOTDIR="pyneo-chroot"
 DIST="sid"
-EFL=true
+EFL=false
 PYNEO=true
 XFCE=false
 XORG=true
@@ -35,7 +35,7 @@ DEPS_SYSTEM="udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debc
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini"
 DEPS_WLAN="wireless-tools,wpasupplicant"
 DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
-DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dnsmasq,dhcp3-client,netplug"
+DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dhcp3-client"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
 cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_WLAN,$DEPS_BT,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
@@ -99,17 +99,6 @@ sed -i 's/\(BLANK_TIME\)=30/\1=0/' $ROOTDIR/etc/console-tools/config
 sed -i "s/\([2-6]:23:respawn:\/sbin\/getty 38400 tty[2-6]\)/#\1/" $ROOTDIR/etc/inittab
 # enable fs fixes
 sed -i "s/\(FSCKFIX=\)no/\1yes/" $ROOTDIR/etc/default/rcS
-# let netplugd manage usb0
-echo usb0 >> $ROOTDIR/etc/netplug/netplugd.conf
-# configure dnsmasq
-cat > $ROOTDIR/etc/dnsmasq.d/pyneo << __END__
-no-resolv
-no-poll
-enable-dbus
-log-queries
-clear-on-reload
-domain-needed
-__END__
 
 # add enlightenment repository
 if $EFL; then
@@ -120,6 +109,11 @@ Pin: origin packages.enlightenment.org
 Pin-Priority: 1001
 __END__
 	curl http://packages.enlightenment.org/repo.key | chroot $ROOTDIR apt-key add -
+fi
+
+# add pyneo repository
+if $PYNEO; then
+	echo deb http://pyneo.org/debian/ / >> $ROOTDIR/etc/apt/sources.list
 fi
 
 chroot $ROOTDIR apt-get update -qq
@@ -147,7 +141,11 @@ Section "InputDevice"
         Option          "Protocol"              "Auto"
 EndSection
 __END__
-	echo 'exec matchbox-window-manager -use_titlebar no -use_cursor no' > $ROOTDIR/etc/skel/.xsession
+	cat > $ROOTDIR/etc/skel/.xsession << __END__
+#!/bin/sh
+exec matchbox-window-manager -use_titlebar no -use_cursor no
+__END__
+	chmod +x $ROOTDIR/etc/skel/.xsession
 	# configure nodm
 	cat > $ROOTDIR/etc/default/nodm << __END__
 NODM_ENABLED=true
@@ -163,21 +161,22 @@ fi
 
 # install pyneo
 if $PYNEO; then
-	# gsm0710muxd
-	chroot $ROOTDIR apt-get install libc6 libdbus-1-3 libdbus-glib-1-2 libglib2.0-0 dbus -qq
-	curl http://pyneo.org/downloads/debian/gsm0710muxd_1.13-1_armel.deb > $ROOTDIR/gsm0710muxd.deb
-	chroot $ROOTDIR dpkg -i gsm0710muxd.deb
-	rm $ROOTDIR/gsm0710muxd.deb
-	# python-pyneo
-	chroot $ROOTDIR apt-get install python python-support python-simplejson python-crypto python-dbus python-ctypes python-sqlite -qq
-	curl http://pyneo.org/downloads/debian/python-pyneo_1.13-1_all.deb > $ROOTDIR/python-pyneo.deb
-	chroot $ROOTDIR dpkg -i python-pyneo.deb
-	rm $ROOTDIR/python-pyneo.deb
-	# pyneod
-	chroot $ROOTDIR apt-get install python python-support python-simplejson python-crypto python-dbus python-gobject python-gdbm python-serial python-gst0.10 gstreamer0.10-plugins-base ppp -qq
-	curl http://pyneo.org/downloads/debian/pyneod_1.13-1_all.deb > $ROOTDIR/pyneod.deb
-	chroot $ROOTDIR dpkg -i pyneod.deb
-	rm $ROOTDIR/pyneod.deb
+	rm $ROOTDIR/etc/resolv.conf
+	chroot $ROOTDIR apt-get install pyneod python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --force-yes
+
+	# let netplugd manage usb0
+	echo usb0 >> $ROOTDIR/etc/netplug/netplugd.conf
+	# configure dnsmasq
+	cat > $ROOTDIR/etc/dnsmasq.d/pyneo << __END__
+no-resolv
+no-poll
+enable-dbus
+log-queries
+clear-on-reload
+domain-needed
+__END__
+	# pyneo-resolvconf installs new resolv.conf - revert that change
+	cp /etc/resolv.conf $ROOTDIR/etc/resolv.conf
 fi
 
 # install xfce
@@ -231,8 +230,10 @@ echo -n "console=tty0 loglevel=8" > $ROOTDIR/boot/append-GTA02
 curl http://pyneo.org/downloads/gta01/modules-$GTA01KERNEL-pyneo-gta01.tar.gz | tar xzf - -C $ROOTDIR
 curl http://pyneo.org/downloads/gta02/modules-$GTA02KERNEL-pyneo-gta02.tar.gz | tar xzf - -C $ROOTDIR
 
-# /etc/resolv.conf
-echo "nameserver localhost" > $ROOTDIR/etc/resolv.conf
+if $PYNEO; then
+	# /etc/resolv.conf
+	echo "nameserver localhost" > $ROOTDIR/etc/resolv.conf
+fi
 
 # firstboot script
 cat > $ROOTDIR/usr/sbin/firstboot.sh << __END__
@@ -325,6 +326,7 @@ ln -sf /usr/sbin/firstboot.sh $ROOTDIR/etc/rcS.d/S99firstboot
 # cleanup
 rm -f $ROOTDIR/etc/ssh/ssh_host_*
 rm -f $ROOTDIR/var/lib/apt/lists/*
+rm -f $ROOTDIR/var/cache/apt/*
 rm -f $ROOTDIR/var/log/*
 rm -f $ROOTDIR/var/log/*/*
 chroot $ROOTDIR apt-get clean -qq
