@@ -239,27 +239,27 @@ fi
 cat > $ROOTDIR/usr/sbin/firstboot.sh << __END__
 #!/bin/sh
 rm -f /etc/rcS.d/S99firstboot
-[ -d /home/persistant ] || mkdir /home/persistant
+[ -d /home/persistent ] || mkdir /home/persistent
 
 echo "Running automatic first boot tasks."
 
 # generat new ssh host keys if one of the files is not in place
-if [ ! -f /home/persistant/ssh_host_rsa_key ] ||
-   [ ! -f /home/persistant/ssh_host_rsa_key.pub ] ||
-   [ ! -f /home/persistant/ssh_host_dsa_key ] ||
-   [ ! -f /home/persistant/ssh_host_dsa_key.pub ]; then
+if [ ! -f /home/persistent/ssh_host_rsa_key ] ||
+   [ ! -f /home/persistent/ssh_host_rsa_key.pub ] ||
+   [ ! -f /home/persistent/ssh_host_dsa_key ] ||
+   [ ! -f /home/persistent/ssh_host_dsa_key.pub ]; then
 	# make sure none of the files still exists
-	[ ! -f /home/persistant/ssh_host_rsa_key ] || rm /home/persistant/ssh_host_rsa_key
-	[ ! -f /home/persistant/ssh_host_rsa_key.pub ] || rm /home/persistant/ssh_host_rsa_key
-	[ ! -f /home/persistant/ssh_host_dsa_key ] || rm /home/persistant/ssh_host_dsa_key
-	[ ! -f /home/persistant/ssh_host_dsa_key.pub ] || rm /home/persistant/ssh_host_dsa_key.pub
+	[ ! -f /home/persistent/ssh_host_rsa_key ] || rm /home/persistent/ssh_host_rsa_key
+	[ ! -f /home/persistent/ssh_host_rsa_key.pub ] || rm /home/persistent/ssh_host_rsa_key
+	[ ! -f /home/persistent/ssh_host_dsa_key ] || rm /home/persistent/ssh_host_dsa_key
+	[ ! -f /home/persistent/ssh_host_dsa_key.pub ] || rm /home/persistent/ssh_host_dsa_key.pub
 	echo -n "Generating ssh host key pairs:"
-	echo -n " rsa..."; /usr/bin/ssh-keygen -q -t rsa -f /home/persistant/ssh_host_rsa_key -C '' -N ''
-	echo -n " dsa..."; /usr/bin/ssh-keygen -q -t dsa -f /home/persistant/ssh_host_dsa_key -C '' -N ''
+	echo -n " rsa..."; /usr/bin/ssh-keygen -q -t rsa -f /home/persistent/ssh_host_rsa_key -C '' -N ''
+	echo -n " dsa..."; /usr/bin/ssh-keygen -q -t dsa -f /home/persistent/ssh_host_dsa_key -C '' -N ''
 	echo "done."
 fi
 echo "Copying ssh host keys into place."
-cp /home/persistant/ssh_host_rsa_key /home/persistant/ssh_host_rsa_key.pub /home/persistant/ssh_host_dsa_key /home/persistant/ssh_host_dsa_key.pub /etc/ssh/
+cp /home/persistent/ssh_host_rsa_key /home/persistent/ssh_host_rsa_key.pub /home/persistent/ssh_host_dsa_key /home/persistent/ssh_host_dsa_key.pub /etc/ssh/
 
 DEVICE="\`awk '/^Hardware/ {print \$3}' < /proc/cpuinfo | tr \"[:upper:]\" \"[:lower:]\"\`"
 echo "Running on \$DEVICE."
@@ -268,10 +268,10 @@ echo "Calibrating Touchscreen."
 if [ \$DEVICE = "gta01" ]; then
 	echo -67 36365 -2733100 -48253 -310 45219816 65536 > /etc/pointercal
 	echo "Appending MAC address to kernel boot parameters."
-	if [ ! -f /home/persistant/mac ]; then
-		echo \`ifconfig -a | awk '/^usb0/{print \$5}'\` > /home/persistant/mac
+	if [ ! -f /home/persistent/mac ]; then
+		echo \`ifconfig -a | awk '/^usb0/{print \$5}'\` > /home/persistent/mac
 	fi
-	echo -n " g_ether.host_addr=\`head -n 1 /home/persistant/mac\`" >> /boot/append-GTA01
+	echo -n " g_ether.host_addr=\`head -n 1 /home/persistent/mac\`" >> /boot/append-GTA01
 	echo "Appending sound module."
 	echo "snd-soc-neo1973-wm8753" > /etc/modules
 	echo "Configuring host alias."
