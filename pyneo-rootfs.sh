@@ -275,7 +275,8 @@ if [ \$DEVICE = "gta01" ]; then
 	echo "Appending sound module."
 	echo "snd-soc-neo1973-wm8753" > /etc/modules
 	echo "Configuring host alias."
-	cat > /etc/hosts << __HOSTS__
+	cat >> /etc/hosts << __HOSTS__
+127.0.0.1 gta01
 192.168.0.199 host01 host
 192.168.0.200 host02
 192.168.0.201 gta01 neo
@@ -290,7 +291,8 @@ else
 	echo "Appending sound module."	
 	echo "snd-soc-neo1973-gta02-wm8753" > /etc/modules
 	echo "Configuring host alias."
-	cat > /etc/hosts << __HOSTS__
+	cat >> /etc/hosts << __HOSTS__
+127.0.0.1 gta02
 192.168.0.199 host01
 192.168.0.200 host02 host
 192.168.0.201 gta01
