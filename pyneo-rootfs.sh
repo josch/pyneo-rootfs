@@ -241,7 +241,34 @@ cat > $ROOTDIR/usr/sbin/firstboot.sh << __END__
 rm -f /etc/rcS.d/S99firstboot
 [ -d /home/persistent ] || mkdir /home/persistent
 
-echo "Running automatic first boot tasks."
+print_exit_status () {
+	cols=\`tput cols\`
+	lines=\`tput lines\`
+	cols=\`expr \$cols - 8\`
+	if [ \$1 -ne 0 ]; then
+		tput cup \$lines \$cols
+		echo "\\033[1;31m[failed]\\033[0m"
+	else
+		tput cup \$lines \$cols
+		echo "\\033[1;32m[ done ]\\033[0m"
+	fi
+}
+
+print_yellow () {
+	echo "\\033[1;33m\$1\\033[0m"
+}
+
+print_yellow "a/ aaQQaa/  a/      _a _a aajQaa     _aaQQaa       /_aQaaa  "
+print_yellow "Q6P?    ?Q6 )W/    _Qf ]QQ?   )46   jP?    ?Qa    ' ]f   )?/"
+print_yellow "QP        Q6 )W/   QP  ]Q'     )W/ jQaaaaaaajQf _'  ]6]Q'  )"
+print_yellow "Qf        jQ  4Q/ jP   ]Q       Qf QQ?????????' ]  aQQQ6aaa "
+print_yellow "QQ/      _Q'   46jP    ]Q       Qf )W/      _a  Q4?QQ?    ]P"
+print_yellow "QP?6aaaaWP'     4Q'    ]Q       Qf  )46aaaajP'    ?j6/ _aj? "
+print_yellow "Qf   ??'       _Q'                     )??'        )'???    "
+print_yellow "Qf            _Q'                                           "
+
+echo
+print_yellow "Running automatic first boot tasks..."
 
 # generat new ssh host keys if one of the files is not in place
 if [ ! -f /home/persistent/ssh_host_rsa_key ] ||
@@ -253,28 +280,37 @@ if [ ! -f /home/persistent/ssh_host_rsa_key ] ||
 	[ ! -f /home/persistent/ssh_host_rsa_key.pub ] || rm /home/persistent/ssh_host_rsa_key
 	[ ! -f /home/persistent/ssh_host_dsa_key ] || rm /home/persistent/ssh_host_dsa_key
 	[ ! -f /home/persistent/ssh_host_dsa_key.pub ] || rm /home/persistent/ssh_host_dsa_key.pub
-	echo -n "Generating ssh host key pairs:"
-	echo -n " rsa..."; /usr/bin/ssh-keygen -q -t rsa -f /home/persistent/ssh_host_rsa_key -C '' -N ''
-	echo -n " dsa..."; /usr/bin/ssh-keygen -q -t dsa -f /home/persistent/ssh_host_dsa_key -C '' -N ''
-	echo "done."
+	echo -n "Generating ssh rsa host key pairs..."
+	/usr/bin/ssh-keygen -q -t rsa -f /home/persistent/ssh_host_rsa_key -C '' -N ''
+	print_exit_status \$?
+	echo -n "Generating ssh dsa host key pairs..."
+	/usr/bin/ssh-keygen -q -t dsa -f /home/persistent/ssh_host_dsa_key -C '' -N ''
+	print_exit_status \$?
 fi
-echo "Copying ssh host keys into place."
+echo -n "Copying ssh host keys into place..."
 cp /home/persistent/ssh_host_rsa_key /home/persistent/ssh_host_rsa_key.pub /home/persistent/ssh_host_dsa_key /home/persistent/ssh_host_dsa_key.pub /etc/ssh/
+print_exit_status \$?
 
 DEVICE="\`awk '/^Hardware/ {print \$3}' < /proc/cpuinfo | tr \"[:upper:]\" \"[:lower:]\"\`"
-echo "Running on \$DEVICE."
+print_yellow "Running on \$DEVICE."
 
-echo "Calibrating Touchscreen."
+echo -n "Calibrating Touchscreen."
 if [ \$DEVICE = "gta01" ]; then
 	echo -67 36365 -2733100 -48253 -310 45219816 65536 > /etc/pointercal
-	echo "Appending MAC address to kernel boot parameters."
+	print_exit_status \$?
+
+	echo -n "Appending MAC address to kernel boot parameters."
 	if [ ! -f /home/persistent/mac ]; then
 		echo \`ifconfig -a | awk '/^usb0/{print \$5}'\` > /home/persistent/mac
 	fi
 	echo -n " g_ether.host_addr=\`head -n 1 /home/persistent/mac\`" >> /boot/append-GTA01
-	echo "Appending sound module."
+	print_exit_status \$?
+
+	echo -n "Appending sound module."
 	echo "snd-soc-neo1973-wm8753" > /etc/modules
-	echo "Configuring host alias."
+	print_exit_status \$?
+
+	echo -n "Configuring host alias."
 	cat >> /etc/hosts << __HOSTS__
 127.0.0.1 gta01
 192.168.0.199 host01 host
@@ -282,15 +318,24 @@ if [ \$DEVICE = "gta01" ]; then
 192.168.0.201 gta01 neo
 192.168.0.202 gta02
 __HOSTS__
-	echo "Adjusting /etc/fstab."
+	print_exit_status \$?
+
+	echo -n "Adjusting /etc/fstab."
 	echo "/dev/mtdblock4  /media/nand     jffs2   defaults,noatime                   0      0" >> /etc/fstab
+	print_exit_status \$?
 else
 	echo -67 38667 -4954632 -51172 121 46965312 65536 > /etc/pointercal
-	echo "Configuring glamo into xorg.conf."
+	print_exit_status \$?
+
+	echo -n "Configuring glamo into xorg.conf."
 	sed -i 's/\(Driver          \)"fbdev"/\1"glamo"/' /etc/X11/xorg.conf
-	echo "Appending sound module."	
+	print_exit_status \$?
+
+	echo -n "Appending sound module."	
 	echo "snd-soc-neo1973-gta02-wm8753" > /etc/modules
-	echo "Configuring host alias."
+	print_exit_status \$?
+
+	echo -n "Configuring host alias."
 	cat >> /etc/hosts << __HOSTS__
 127.0.0.1 gta02
 192.168.0.199 host01
@@ -298,29 +343,41 @@ else
 192.168.0.201 gta01
 192.168.0.202 gta02 neo
 __HOSTS__
-	echo "Adjusting /etc/fstab."
+	print_exit_status \$?
+
+	echo -n "Adjusting /etc/fstab."
 	echo "/dev/mtdblock6  /media/nand     jffs2   defaults,noatime                   0      0" >> /etc/fstab
+	print_exit_status \$?
 fi
 
-echo "Creating new user"
+echo -n "Creating new user"
 useradd user -p //plGAV7Hp3Zo -s /bin/bash --create-home
+print_exit_status \$?
 
-echo "Mounting NAND."
+echo -n "Mounting NAND."
 mount /media/nand
+print_exit_status \$?
 
-echo "Setting hostname to \$DEVICE."
+echo -n "Setting hostname to \$DEVICE."
 echo "\$DEVICE" > /etc/hostname
 hostname "\$DEVICE"
+print_exit_status \$?
 
-echo "Bringing up usb networking."
+echo -n "Bringing up usb networking."
 ifup usb0
+print_exit_status \$?
 
-echo "Updating datetime."
+echo -n "Updating datetime."
 ntpdate-debian
+print_exit_status \$?
 
 echo -n "Updating package index..."
 apt-get update -qq
-echo "done."
+print_exit_status \$?
+
+print_yellow "finished running firstboot tasks!"
+print_yellow "resuming normal boot..."
+sleep 3
 __END__
 chmod +x $ROOTDIR/usr/sbin/firstboot.sh
 ln -sf /usr/sbin/firstboot.sh $ROOTDIR/etc/rcS.d/S99firstboot
