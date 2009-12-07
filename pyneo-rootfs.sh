@@ -16,16 +16,9 @@ if [ -d $ROOTDIR ]; then
 	exit 1
 fi
 
-for APP in "cdebootstrap" "curl"; do
+for APP in "cdebootstrap" "curl" "chroot"; do
 	if [ -z "`which $APP`" ]; then
 		echo "you need $APP"
-		exit 1
-	fi
-done
-
-for PROC in "hald" "dbus-daemon" "gsm0710muxd" "pyneod"; do
-	if [ -n "`pidof $PROC`" ]; then
-		echo "stop $PROC before running this script"
 		exit 1
 	fi
 done
@@ -44,11 +37,6 @@ if [ $? -ne 0 ]; then
 	exit 1
 fi
 
-# mount
-mount -t none -o bind /dev $ROOTDIR/dev
-mount -t none -o bind /proc $ROOTDIR/proc
-mount -t none -o bind /sys $ROOTDIR/sys
-mount -t none -o bind /tmp $ROOTDIR/tmp
 # /etc/hosts
 echo "127.0.0.1 localhost" > $ROOTDIR/etc/hosts
 # /etc/resolv.conf
@@ -390,26 +378,12 @@ chmod +x $ROOTDIR/usr/sbin/firstboot.sh
 ln -sf /usr/sbin/firstboot.sh $ROOTDIR/etc/rcS.d/S99firstboot
 
 # cleanup
+chroot $ROOTDIR apt-get clean -qq
 rm -f $ROOTDIR/etc/ssh/ssh_host_*
 rm -f $ROOTDIR/var/lib/apt/lists/*
 rm -f $ROOTDIR/var/cache/apt/*
 rm -f $ROOTDIR/var/log/*
 rm -f $ROOTDIR/var/log/*/*
-chroot $ROOTDIR apt-get clean -qq
-# stop services
-if $PYNEO; then
-	chroot $ROOTDIR /etc/init.d/pyneod stop
-	chroot $ROOTDIR /etc/init.d/gsm0710muxd stop
-fi
-if $PYNEO || $XORG || $XFCE || $EFL; then
-	chroot $ROOTDIR /etc/init.d/hal stop
-	chroot $ROOTDIR /etc/init.d/dbus stop
-fi
-# umount
-umount $ROOTDIR/dev
-umount $ROOTDIR/proc
-umount $ROOTDIR/sys
-umount $ROOTDIR/tmp
 
 # tar cv -C sid-chroot/ . | ssh josch@192.168.0.199 "lzma -c > pyneo-rootfs-debian-sid.tar.lzma"
 
