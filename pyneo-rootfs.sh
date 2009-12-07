@@ -32,7 +32,7 @@ done
 
 # cdebotstrap
 DEPS_SYSTEM="udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
-DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset"
+DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils,libts-bin"
 DEPS_WLAN="wireless-tools,wpasupplicant"
 DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
 DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dhcp3-client"
