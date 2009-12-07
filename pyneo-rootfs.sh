@@ -76,6 +76,11 @@ tmpfs           /tmp            tmpfs   defaults,noatime                   0    
 tmpfs           /var/lock       tmpfs   defaults,noatime                   0      0
 tmpfs           /var/run        tmpfs   defaults,noatime                   0      0
 __END__
+cat > $ROOTDIR/etc/modules << __END__
+mtdblock
+configs
+s3c2410_ts
+__END__
 # nand mount
 mkdir -p $ROOTDIR/media/nand
 # no-install-recommends
@@ -307,7 +312,7 @@ if [ \$DEVICE = "gta01" ]; then
 	print_exit_status \$?
 
 	echo -n "Appending sound module."
-	echo "snd-soc-neo1973-wm8753" > /etc/modules
+	echo "snd-soc-neo1973-wm8753" >> /etc/modules
 	print_exit_status \$?
 
 	echo -n "Configuring host alias."
@@ -332,7 +337,7 @@ else
 	print_exit_status \$?
 
 	echo -n "Appending sound module."	
-	echo "snd-soc-neo1973-gta02-wm8753" > /etc/modules
+	echo "snd-soc-neo1973-gta02-wm8753" >> /etc/modules
 	print_exit_status \$?
 
 	echo -n "Configuring host alias."
