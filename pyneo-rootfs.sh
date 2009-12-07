@@ -229,8 +229,8 @@ curl http://pyneo.org/downloads/gta01/zImage-$GTA01KERNEL-pyneo-gta01.bin > $ROO
 curl http://pyneo.org/downloads/gta02/zImage-$GTA02KERNEL-pyneo-gta02.bin > $ROOTDIR/boot/zImage-$GTA02KERNEL-pyneo-gta02.bin
 ln -s zImage-$GTA01KERNEL-pyneo-gta01.bin $ROOTDIR/boot/uImage-GTA01.bin
 ln -s zImage-$GTA02KERNEL-pyneo-gta02.bin $ROOTDIR/boot/uImage-GTA02.bin
-echo -n "console=tty0 loglevel=8" > $ROOTDIR/boot/append-GTA01
-echo -n "console=tty0 loglevel=8" > $ROOTDIR/boot/append-GTA02
+echo "console=tty0 " > $ROOTDIR/boot/append-GTA01
+echo "console=tty0 " > $ROOTDIR/boot/append-GTA02
 # modules
 curl http://pyneo.org/downloads/gta01/modules-$GTA01KERNEL-pyneo-gta01.tar.gz | tar xzf - -C $ROOTDIR
 curl http://pyneo.org/downloads/gta02/modules-$GTA02KERNEL-pyneo-gta02.tar.gz | tar xzf - -C $ROOTDIR
@@ -308,7 +308,7 @@ if [ \$DEVICE = "gta01" ]; then
 	if [ ! -f /home/persistent/mac ]; then
 		echo \`ifconfig -a | awk '/^usb0/{print \$5}'\` > /home/persistent/mac
 	fi
-	echo -n " g_ether.host_addr=\`head -n 1 /home/persistent/mac\`" >> /boot/append-GTA01
+	echo "console=tty0 g_ether.host_addr=\`head -n 1 /home/persistent/mac\`" > /boot/append-GTA01
 	print_exit_status \$?
 
 	echo -n "Appending sound module."
