@@ -217,8 +217,8 @@ echo KERNEL==\"s3c2410_serial[0-9]\",  NAME=\"ttySAC%n\" > $ROOTDIR/etc/udev/rul
 curl http://pyneo.org/downloads/gta0x/zImage-$KERNEL_VER-pyneo.bin > $ROOTDIR/boot/zImage-$KERNEL_VER-pyneo.bin
 ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA01.bin
 ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA02.bin
-echo "console=tty0 " > $ROOTDIR/boot/append-GTA01
-echo "console=tty0 " > $ROOTDIR/boot/append-GTA02
+echo "console=tty0 rootdelay=3 " > $ROOTDIR/boot/append-GTA01
+echo "console=tty0 rootdelay=1 " > $ROOTDIR/boot/append-GTA02
 # modules
 curl http://pyneo.org/downloads/gta0x/modules-$KERNEL_VER-pyneo.tar.lzma | tar --lzma -xf - -C $ROOTDIR
 
