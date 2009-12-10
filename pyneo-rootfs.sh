@@ -8,8 +8,7 @@ XFCE=false
 XORG=true
 ALSA=true
 
-GTA01KERNEL="2.6.29-rc3"
-GTA02KERNEL="2.6.30.4"
+KERNEL_VER="2.6.31"
 
 if [ -d $ROOTDIR ]; then
 	echo "$ROOTDIR exists"
@@ -215,15 +214,13 @@ fi
 # modem
 echo KERNEL==\"s3c2410_serial[0-9]\",  NAME=\"ttySAC%n\" > $ROOTDIR/etc/udev/rules.d/51-calypso.rules
 # kernel
-curl http://pyneo.org/downloads/gta01/zImage-$GTA01KERNEL-pyneo-gta01.bin > $ROOTDIR/boot/zImage-$GTA01KERNEL-pyneo-gta01.bin
-curl http://pyneo.org/downloads/gta02/zImage-$GTA02KERNEL-pyneo-gta02.bin > $ROOTDIR/boot/zImage-$GTA02KERNEL-pyneo-gta02.bin
-ln -s zImage-$GTA01KERNEL-pyneo-gta01.bin $ROOTDIR/boot/uImage-GTA01.bin
-ln -s zImage-$GTA02KERNEL-pyneo-gta02.bin $ROOTDIR/boot/uImage-GTA02.bin
+curl http://pyneo.org/downloads/gta0x/zImage-$KERNEL_VER-pyneo.bin > $ROOTDIR/boot/zImage-$KERNEL_VER-pyneo.bin
+ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA01.bin
+ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA02.bin
 echo "console=tty0 " > $ROOTDIR/boot/append-GTA01
 echo "console=tty0 " > $ROOTDIR/boot/append-GTA02
 # modules
-curl http://pyneo.org/downloads/gta01/modules-$GTA01KERNEL-pyneo-gta01.tar.gz | tar xzf - -C $ROOTDIR
-curl http://pyneo.org/downloads/gta02/modules-$GTA02KERNEL-pyneo-gta02.tar.gz | tar xzf - -C $ROOTDIR
+curl http://pyneo.org/downloads/gta0x/modules-$KERNEL_VER-pyneo.tar.lzma | tar --lzma -xf - -C $ROOTDIR
 
 if $PYNEO; then
 	# /etc/resolv.conf
