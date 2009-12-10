@@ -64,8 +64,6 @@ tmpfs           /var/lock       tmpfs   defaults,noatime                   0    
 tmpfs           /var/run        tmpfs   defaults,noatime                   0      0
 __END__
 cat > $ROOTDIR/etc/modules << __END__
-mtdblock
-configs
 s3c2410_ts
 __END__
 # nand mount
