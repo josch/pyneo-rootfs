@@ -153,7 +153,7 @@ fi
 
 # install pyneo
 if $PYNEO; then
-	chroot $ROOTDIR apt-get install pyneod python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --download-only --allow-unauthenticated
+	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --download-only --allow-unauthenticated
 	# an existing resolv.conf will prompt the user wether to overwrite it or not so delete it
 	rm $ROOTDIR/etc/resolv.conf
 	chroot $ROOTDIR apt-get install pyneod python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --no-download --allow-unauthenticated
