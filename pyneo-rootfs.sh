@@ -128,7 +128,7 @@ Section "InputDevice"
         Driver          "tslib"
         Option          "CorePointer"           "true"
         Option          "SendCoreEvents"        "true"
-        Option          "Device"                "/dev/input/event1"
+        Option          "Device"                "/dev/input/event2"
         Option          "Protocol"              "Auto"
 EndSection
 __END__
