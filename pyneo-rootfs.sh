@@ -104,6 +104,7 @@ fi
 # add pyneo repository
 if $PYNEO; then
 	echo deb http://pyneo.org/debian/ / >> $ROOTDIR/etc/apt/sources.list
+	curl http://pyneo.org/downloads/debian/pyneo-repository-pubkey.gpg | chroot $ROOTDIR apt-key add -
 fi
 
 chroot $ROOTDIR apt-get update -qq
@@ -151,10 +152,10 @@ fi
 
 # install pyneo
 if $PYNEO; then
-	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --download-only --allow-unauthenticated
+	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --download-only
 	# an existing resolv.conf will prompt the user wether to overwrite it or not so delete it
 	rm $ROOTDIR/etc/resolv.conf
-	chroot $ROOTDIR apt-get install pyneod python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --no-download --allow-unauthenticated
+	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --no-download
 
 	# let netplugd manage usb0
 	echo usb0 >> $ROOTDIR/etc/netplug/netplugd.conf
