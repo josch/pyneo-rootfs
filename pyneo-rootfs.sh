@@ -76,8 +76,12 @@ echo 'Acquire::PDiffs "0";' > $ROOTDIR/etc/apt/apt.conf.d/99no-pdiffs
 # empty password
 sed -i 's/\(PermitEmptyPasswords\) no/\1 yes/' $ROOTDIR/etc/ssh/sshd_config
 sed -i 's/\(root:\)[^:]*\(:\)/\1\/\/plGAV7Hp3Zo\2/' $ROOTDIR/etc/shadow
+# locales
+echo LANG="C" > $ROOTDIR/etc/default/locale
+#echo LANG="en_US.UTF-8" > $ROOTDIR/etc/default/locale
+#echo en_US.UTF-8 UTF-8 > $ROOTDIR/etc/locale.gen
+#chroot $ROOTDIR locale-gen
 #
-echo LANG=C > $ROOTDIR/etc/default/locale
 echo set debconf/frontend Teletype | chroot $ROOTDIR debconf-communicate
 # disable startup message of screen
 echo startup_message off >> $ROOTDIR/etc/screenrc
