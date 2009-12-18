@@ -286,6 +286,12 @@ echo -n "Copying ssh host keys into place..."
 cp /home/persistent/ssh_host_rsa_key /home/persistent/ssh_host_rsa_key.pub /home/persistent/ssh_host_dsa_key /home/persistent/ssh_host_dsa_key.pub /etc/ssh/
 print_exit_status \$?
 
+if [ -f /home/persistent/pyneo.ini ]; then
+	echo -n "Copying pyneo.ini into place..."
+	cp /home/persistent/pyneo.ini /etc/
+	print_exit_status \$?
+fi
+
 DEVICE="\`awk '/^Hardware/ {print \$3}' < /proc/cpuinfo | tr \"[:upper:]\" \"[:lower:]\"\`"
 print_yellow "Running on \$DEVICE."
 
