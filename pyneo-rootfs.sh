@@ -359,11 +359,8 @@ hostname "\$DEVICE"
 print_exit_status \$?
 
 echo -n "Bringing up usb networking."
-ifup usb0
-print_exit_status \$?
-
-echo -n "Updating datetime."
-ntpdate-debian
+ifdown usb0
+sleep 3
 print_exit_status \$?
 
 echo -n "Updating package index..."
