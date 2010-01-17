@@ -383,6 +383,7 @@ chmod +x $ROOTDIR/usr/sbin/firstboot.sh
 ln -sf /usr/sbin/firstboot.sh $ROOTDIR/etc/rcS.d/S99firstboot
 
 # cleanup
+chroot $ROOTDIR apt-get remove cdebootstrap-helper-rc.d
 chroot $ROOTDIR apt-get clean -qq
 rm -f $ROOTDIR/etc/ssh/ssh_host_*
 rm -f $ROOTDIR/var/lib/apt/lists/*
