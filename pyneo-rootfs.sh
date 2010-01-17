@@ -25,11 +25,11 @@ done
 # cdebotstrap
 DEPS_SYSTEM="udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils,libts-bin"
-DEPS_WLAN="wpasupplicant"
-DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
+#DEPS_WLAN="wpasupplicant"
+#DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
 DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dhcp3-client"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
-cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_WLAN,$DEPS_BT,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
+cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
 if [ $? -ne 0 ]; then
 	echo "cdebootstrap failed"
@@ -390,5 +390,5 @@ rm -f $ROOTDIR/var/cache/apt/*
 rm -f $ROOTDIR/var/log/*
 rm -f $ROOTDIR/var/log/*/*
 
-# tar cv -C sid-chroot/ . | ssh josch@192.168.0.199 "lzma -c > pyneo-rootfs-debian-sid.tar.lzma"
+# tar cv -C pyneo-chroot/ . | ssh josch@192.168.0.199 "lzma -c > pyneo-rootfs-debian-sid-`date +%F`.tar.lzma"
 
