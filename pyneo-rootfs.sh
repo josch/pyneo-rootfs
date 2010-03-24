@@ -98,7 +98,7 @@ sed -i "s/\(FSCKFIX=\)no/\1yes/" $ROOTDIR/etc/default/rcS
 
 # add enlightenment repository
 if $EFL; then
-	echo deb http://packages.enlightenment.org/debian lenny main extras >> $ROOTDIR/etc/apt/sources.list
+	echo deb http://packages.enlightenment.org/debian $DIST main extras >> $ROOTDIR/etc/apt/sources.list
 	cat > $ROOTDIR/etc/apt/preferences << __END__
 Package: *
 Pin: origin packages.enlightenment.org 
