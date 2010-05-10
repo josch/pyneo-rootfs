@@ -2,7 +2,7 @@
 
 ROOTDIR="pyneo-chroot"
 DIST="sid"
-EFL=false
+EFL=true
 PYNEO=true
 XFCE=false
 XORG=true
@@ -101,7 +101,7 @@ if $EFL; then
 	echo deb http://packages.enlightenment.org/debian $DIST main extras >> $ROOTDIR/etc/apt/sources.list
 	cat > $ROOTDIR/etc/apt/preferences << __END__
 Package: *
-Pin: origin packages.enlightenment.org 
+Pin: origin packages.enlightenment.org
 Pin-Priority: 1001
 __END__
 	curl http://packages.enlightenment.org/repo.key | chroot $ROOTDIR apt-key add -
@@ -117,7 +117,7 @@ chroot $ROOTDIR apt-get update -qq
 
 # install enlightenment
 if $EFL; then
-	chroot $ROOTDIR apt-get install python-evas python-edje python-elementary python-emotion python-edbus libedje-bin -qq
+	chroot $ROOTDIR apt-get install libevas-svn-05-engines-core libevas-svn-05-engines-x python-evas python-edje python-elementary python-emotion python-edbus libedje-bin -qq
 fi
 
 # install xorg
@@ -334,7 +334,7 @@ else
 	sed -i 's/\(Driver          \)"fbdev"/\1"glamo"/' /etc/X11/xorg.conf
 	print_exit_status \$?
 
-	echo -n "Appending sound module."	
+	echo -n "Appending sound module."
 	echo "snd-soc-neo1973-gta02-wm8753" >> /etc/modules
 	print_exit_status \$?
 
