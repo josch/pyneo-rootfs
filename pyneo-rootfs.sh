@@ -96,17 +96,6 @@ sed -i "s/\([2-6]:23:respawn:\/sbin\/getty 38400 tty[2-6]\)/#\1/" $ROOTDIR/etc/i
 # enable fs fixes
 sed -i "s/\(FSCKFIX=\)no/\1yes/" $ROOTDIR/etc/default/rcS
 
-# add enlightenment repository
-if $EFL; then
-	echo deb http://packages.enlightenment.org/debian $DIST main extras >> $ROOTDIR/etc/apt/sources.list
-	cat > $ROOTDIR/etc/apt/preferences << __END__
-Package: *
-Pin: origin packages.enlightenment.org
-Pin-Priority: 1001
-__END__
-	curl http://packages.enlightenment.org/repo.key | chroot $ROOTDIR apt-key add -
-fi
-
 # add pyneo repository
 if $PYNEO; then
 	echo deb http://pyneo.org/debian/ / >> $ROOTDIR/etc/apt/sources.list
