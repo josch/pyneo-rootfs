@@ -106,7 +106,7 @@ chroot $ROOTDIR apt-get update -qq
 
 # install enlightenment
 if $EFL; then
-	chroot $ROOTDIR apt-get install libevas-svn-05-engines-core libevas-svn-05-engines-x python-evas python-edje python-elementary python-emotion python-edbus libedje-bin -qq
+	chroot $ROOTDIR apt-get install libevas-svn-06-engines-core libevas-svn-06-engines-x python-evas python-edje python-elementary python-edbus libedje-bin -qq
 fi
 
 # install xorg
