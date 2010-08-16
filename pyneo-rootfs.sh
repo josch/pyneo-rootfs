@@ -235,7 +235,7 @@ fi
 # firstboot script
 cat > $ROOTDIR/usr/sbin/firstboot.sh << __END__
 #!/bin/sh
-rm -f /etc/rcS.d/S99firstboot
+chmod -x /usr/sbin/firstboot.sh
 [ -d /home/persistent ] || mkdir /home/persistent
 
 print_exit_status () {
@@ -380,7 +380,17 @@ print_yellow "resuming normal boot..."
 sleep 3
 __END__
 chmod +x $ROOTDIR/usr/sbin/firstboot.sh
-ln -sf /usr/sbin/firstboot.sh $ROOTDIR/etc/rcS.d/S99firstboot
+
+cat > $ROOTDIR/etc/rc.local << __END__
+#!/bin/sh -e
+
+if [ -x /usr/sbin/firstboot.sh ]; then
+	/usr/sbin/firstboot.sh
+fi
+
+exit 0
+
+__END__
 
 # cleanup
 chroot $ROOTDIR apt-get remove cdebootstrap-helper-rc.d -qq
