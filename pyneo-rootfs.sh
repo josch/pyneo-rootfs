@@ -23,7 +23,7 @@ for APP in "cdebootstrap" "curl" "chroot"; do
 done
 
 # cdebotstrap
-DEPS_SYSTEM="udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
+DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils,libts-bin"
 #DEPS_WLAN="wpasupplicant"
 #DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
@@ -79,10 +79,10 @@ echo 'Acquire::PDiffs "0";' > $ROOTDIR/etc/apt/apt.conf.d/99no-pdiffs
 sed -i 's/\(PermitEmptyPasswords\) no/\1 yes/' $ROOTDIR/etc/ssh/sshd_config
 sed -i 's/\(root:\)[^:]*\(:\)/\1\/\/plGAV7Hp3Zo\2/' $ROOTDIR/etc/shadow
 # locales
-echo LANG="C" > $ROOTDIR/etc/default/locale
-#echo LANG="en_US.UTF-8" > $ROOTDIR/etc/default/locale
-#echo en_US.UTF-8 UTF-8 > $ROOTDIR/etc/locale.gen
-#chroot $ROOTDIR locale-gen
+#echo LANG="C" > $ROOTDIR/etc/default/locale
+echo LANG="en_US.UTF-8" > $ROOTDIR/etc/default/locale
+echo en_US.UTF-8 UTF-8 > $ROOTDIR/etc/locale.gen
+chroot $ROOTDIR locale-gen
 #
 echo set debconf/frontend Teletype | chroot $ROOTDIR debconf-communicate
 # disable startup message of screen
