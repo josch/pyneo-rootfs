@@ -206,7 +206,7 @@ __END__
 fi
 
 # modem
-echo KERNEL==\"s3c2410_serial[0-9]\",  NAME=\"ttySAC%n\" > $ROOTDIR/etc/udev/rules.d/51-calypso.rules
+echo KERNEL==\"s3c2410_serial[0-9]\",  SYMLINK=\"ttySAC%n\" > $ROOTDIR/etc/udev/rules.d/51-calypso.rules
 # kernel
 curl http://pyneo.org/downloads/gta0x/zImage-$KERNEL_VER-pyneo.bin > $ROOTDIR/boot/zImage-$KERNEL_VER-pyneo.bin
 ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA01.bin
