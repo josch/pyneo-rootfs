@@ -24,7 +24,7 @@ done
 
 # cdebotstrap
 DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
-DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils,libts-bin"
+DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils"
 #DEPS_WLAN="wpasupplicant"
 #DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
 DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dhcp3-client"
@@ -111,20 +111,12 @@ fi
 
 # install xorg
 if $XORG; then
-	chroot $ROOTDIR apt-get install xorg xserver-xorg-input-tslib xserver-xorg-video-glamo nodm matchbox-window-manager -qq
+	chroot $ROOTDIR apt-get install xorg xserver-xorg-input-evdev xserver-xorg-video-glamo nodm matchbox-window-manager -qq
 	# /etc/X11/xorg.conf
 	cat > $ROOTDIR/etc/X11/xorg.conf << __END__
 Section "Device"
        Identifier      "Configured Video Device"
        Driver          "fbdev"
-EndSection
-Section "InputDevice"
-        Identifier      "Configured Touchscreen"
-        Driver          "tslib"
-        Option          "CorePointer"           "true"
-        Option          "SendCoreEvents"        "true"
-        Option          "Device"                "/dev/input/event2"
-        Option          "Protocol"              "Auto"
 EndSection
 __END__
 	cat > $ROOTDIR/etc/skel/.xsession << __END__
@@ -143,6 +135,7 @@ NODM_X_OPTIONS='-nolisten tcp'
 NODM_MIN_SESSION_TIME=60
 __END__
 	echo allowed_users=anybody > $ROOTDIR/etc/X11/Xwrapper.config
+	mkdir -p $ROOTDIR/etc/X11/xorg.conf.d
 fi
 
 # install pyneo
@@ -288,7 +281,14 @@ print_yellow "Running on \$DEVICE."
 
 echo -n "Calibrating Touchscreen."
 if [ \$DEVICE = "gta01" ]; then
-	echo -67 36365 -2733100 -48253 -310 45219816 65536 > /etc/pointercal
+	cat > /etc/X11/xorg.conf.d/s3c2410.conf << __XORG__
+Section "InputClass"
+	Identifier	"s3c2410 TouchScreen"
+	MatchProduct	"s3c2410 TouchScreen"
+	Option	"Calibration"	"69, 922, 950, 65"
+	Option	"SwapAxes"	"1"
+EndSection
+__XORG__
 	print_exit_status \$?
 
 	echo -n "Appending MAC address to kernel boot parameters."
@@ -316,7 +316,14 @@ __HOSTS__
 	echo "/dev/mtdblock4  /media/nand     jffs2   defaults,noatime                   0      0" >> /etc/fstab
 	print_exit_status \$?
 else
-	echo -67 38667 -4954632 -51172 121 46965312 65536 > /etc/pointercal
+	cat > /etc/X11/xorg.conf.d/s3c2410.conf << __XORG__
+Section "InputClass"
+	Identifier	"s3c2410 TouchScreen"
+	MatchProduct	"s3c2410 TouchScreen"
+	Option	"Calibration"	"110 922 924 96"
+	Option	"SwapAxes"	"1"
+EndSection
+__XORG__
 	print_exit_status \$?
 
 	echo -n "Configuring glamo into xorg.conf."
@@ -382,7 +389,7 @@ exit 0
 __END__
 
 # cleanup
-chroot $ROOTDIR apt-get remove cdebootstrap-helper-rc.d -qq
+chroot $ROOTDIR apt-get remove cdebootstrap-helper-rc.d xserver-xorg-input-synaptics xserver-xorg-input-wacom -qq
 chroot $ROOTDIR apt-get clean -qq
 rm -f $ROOTDIR/etc/ssh/ssh_host_*
 rm -f $ROOTDIR/var/lib/apt/lists/*
