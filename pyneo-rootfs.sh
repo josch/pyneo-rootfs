@@ -141,13 +141,11 @@ fi
 
 # install pyneo
 if $PYNEO; then
-	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --download-only
+	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq -qq --download-only
 	# an existing resolv.conf will prompt the user wether to overwrite it or not so delete it
 	rm $ROOTDIR/etc/resolv.conf
-	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --no-download
+	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq -qq --no-download
 
-	# let netplugd manage usb0
-	echo usb0 >> $ROOTDIR/etc/netplug/netplugd.conf
 	# configure dnsmasq
 	cat > $ROOTDIR/etc/dnsmasq.d/pyneo << __END__
 no-resolv
