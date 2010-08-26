@@ -155,6 +155,27 @@ log-queries
 clear-on-reload
 domain-needed
 __END__
+
+	cat > $ROOTDIR/etc/dhcpcd.conf << __END__
+hostname
+
+option domain_name_servers, domain_name, domain_search, host_name
+option classless_static_routes
+
+option ntp_servers
+
+option interface_mtu
+
+require dhcp_server_identifier
+
+nohook lookup-hostname
+
+interface usb0
+	static ip_address=192.168.0.202/24
+	static routers=192.168.0.200
+	static domain_name_servers=192.168.0.200
+__END__
+
 	# pyneo-resolvconf installs new resolv.conf - revert that change
 	cp /etc/resolv.conf $ROOTDIR/etc/resolv.conf
 fi
