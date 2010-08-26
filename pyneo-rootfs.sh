@@ -214,9 +214,20 @@ if $PYNEO; then
 fi
 
 # firstboot script
-cat > $ROOTDIR/usr/sbin/firstboot.sh << __END__
-#!/bin/sh
-chmod -x /usr/sbin/firstboot.sh
+cat > $ROOTDIR/etc/init.d/firstboot << __END__
+#!/bin/sh -e
+### BEGIN INIT INFO
+# Provides:          firstboot
+# Required-Start:    \$all
+# Required-Stop:     
+# Default-Start:     S
+# Default-Stop:
+# X-Interactive:     true
+
+### END INIT INFO
+
+update-rc.d -f firstboot remove
+
 [ -d /home/persistent ] || mkdir /home/persistent
 
 print_exit_status () {
@@ -374,18 +385,8 @@ print_yellow "finished running firstboot tasks!"
 print_yellow "resuming normal boot..."
 sleep 3
 __END__
-chmod +x $ROOTDIR/usr/sbin/firstboot.sh
-
-cat > $ROOTDIR/etc/rc.local << __END__
-#!/bin/sh -e
-
-if [ -x /usr/sbin/firstboot.sh ]; then
-	/usr/sbin/firstboot.sh
-fi
-
-exit 0
-
-__END__
+chmod +x $ROOTDIR/etc/init.d/firstboot
+chroot $ROOTDIR update-rc.d firstboot start 99 S
 
 # cleanup
 chroot $ROOTDIR apt-get remove cdebootstrap-helper-rc.d xserver-xorg-input-synaptics xserver-xorg-input-wacom -qq
