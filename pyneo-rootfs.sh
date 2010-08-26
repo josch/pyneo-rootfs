@@ -360,7 +360,11 @@ __HOSTS__
 fi
 
 echo -n "Creating new user"
-useradd user -p //plGAV7Hp3Zo -s /bin/bash --create-home
+if [ -d /home/user ]; then
+	useradd user -p //plGAV7Hp3Zo -s /bin/bash
+else
+	useradd user -p //plGAV7Hp3Zo -s /bin/bash --create-home
+fi
 print_exit_status \$?
 
 echo -n "Mounting NAND."
