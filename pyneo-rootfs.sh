@@ -27,7 +27,7 @@ DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpd
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils"
 #DEPS_WLAN="wpasupplicant"
 #DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
-DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dhcp3-client"
+DEPS_NETMGMT="netbase,iputils-ping"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
 cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
@@ -374,15 +374,6 @@ print_exit_status \$?
 echo -n "Setting hostname to \$DEVICE."
 echo "\$DEVICE" > /etc/hostname
 hostname "\$DEVICE"
-print_exit_status \$?
-
-echo -n "Bringing up usb networking."
-ifdown usb0
-sleep 3
-print_exit_status \$?
-
-echo -n "Updating package index..."
-apt-get update -qq
 print_exit_status \$?
 
 print_yellow "finished running firstboot tasks!"
