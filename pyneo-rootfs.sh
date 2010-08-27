@@ -257,15 +257,21 @@ print_exit_status () {
 	cols=\`expr \$cols - 8\`
 	if [ \$1 -ne 0 ]; then
 		tput cup \$lines \$cols
-		echo "\\033[1;31m[failed]\\033[0m"
+		tput setf 1
+		echo "[failed]"
+		tput sgr0
 	else
 		tput cup \$lines \$cols
-		echo "\\033[1;32m[ done ]\\033[0m"
+		tput setf 2
+		echo "[ done ]"
+		tput sgr0
 	fi
 }
 
 print_yellow () {
-	echo "\\033[1;33m\$1\\033[0m"
+	tput setf 3
+	echo "\$1"
+	tput sgr0
 }
 
 print_yellow "a/ aaQQaa/  a/      _a _a aajQaa     _aaQQaa       /_aQaaa  "
