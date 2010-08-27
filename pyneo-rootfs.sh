@@ -100,7 +100,7 @@ fi
 # install xorg
 if $XORG; then
 	chroot $ROOTDIR apt-get install xserver-xorg-video-glamo -qq
-	chroot $ROOTDIR apt-get install xorg xserver-xorg-input-evdev nodm matchbox-window-manager -qq
+	chroot $ROOTDIR apt-get install xserver-xorg-input-evdev nodm matchbox-window-manager -qq
 	# /etc/X11/xorg.conf
 	cat > $ROOTDIR/etc/X11/xorg.conf << __END__
 Section "Device"
