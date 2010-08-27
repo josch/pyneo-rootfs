@@ -27,7 +27,7 @@ DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpd
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils"
 #DEPS_WLAN="wpasupplicant"
 #DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
-DEPS_NETMGMT="netbase,iputils-ping"
+DEPS_NETMGMT="iputils-ping"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
 cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
@@ -43,18 +43,6 @@ echo "127.0.0.1 localhost" > $ROOTDIR/etc/hosts
 # /etc/resolv.conf
 # while building use host's resolv.conf
 cp /etc/resolv.conf $ROOTDIR/etc/resolv.conf
-# /etc/network/interfaces
-cat > $ROOTDIR/etc/network/interfaces << __END__
-auto lo
-iface lo inet loopback
-auto usb0
-iface usb0 inet static
-    address neo
-    netmask 255.255.255.0
-    network 192.168.0.0
-    gateway host
-    dns-nameservers host
-__END__
 # /etc/fstab
 cat > $ROOTDIR/etc/fstab << __END__
 # <file system> <mount point>   <type>  <options>                          <dump> <pass>
