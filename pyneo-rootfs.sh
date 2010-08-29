@@ -182,10 +182,11 @@ if [ -x /sbin/ip ]; then
 	exit 0
 fi
 __END__
-	chroot $ROOTDIR update-rc.d loopback.sh defaults
+	chmod +x $ROOTDIR/etc/init.d/loopback.sh
+	chroot $ROOTDIR update-rc.d loopback.sh start 20 S
 
 	sed -i 's/# Required-\(Start:\|Stop: \)\(.*\)/# Required-\1\2 dbus/' $ROOTDIR/etc/init.d/dnsmasq
-	chroot $ROOTDIR update-rc.d dnsmasq defaults
+	chroot $ROOTDIR update-rc.d dnsmasq start 20 2 3 4 5 . stop 80 1
 
 	sed -i 's/# Required-\(Start:\|Stop: \)\(.*\)/# Required-\1\2 dnsmasq dbus/' $ROOTDIR/etc/init.d/dhcpcd
 	chroot $ROOTDIR update-rc.d dhcpcd defaults
@@ -271,21 +272,21 @@ print_exit_status () {
 	cols=\`expr \$cols - 8\`
 	if [ \$1 -ne 0 ]; then
 		tput cup \$lines \$cols
-		tput setf 1
+		tput setaf 1
 		echo "[failed]"
-		tput sgr0
+		tput op
 	else
 		tput cup \$lines \$cols
-		tput setf 2
+		tput setaf 2
 		echo "[ done ]"
-		tput sgr0
+		tput op
 	fi
 }
 
 print_yellow () {
-	tput setf 3
+	tput setaf 3
 	echo "\$1"
-	tput sgr0
+	tput op
 }
 
 print_yellow "a/ aaQQaa/  a/      _a _a aajQaa     _aaQQaa       /_aQaaa  "
