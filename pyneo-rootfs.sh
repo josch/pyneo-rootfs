@@ -27,7 +27,7 @@ DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpd
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils"
 #DEPS_WLAN="wpasupplicant"
 #DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
-DEPS_NETMGMT="iputils-ping"
+DEPS_NETMGMT="iputils-ping,iproute,dnsutils"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
 cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
@@ -158,11 +158,37 @@ require dhcp_server_identifier
 
 nohook lookup-hostname
 
+allowinterfaces usb0 wlan0
+
 interface usb0
 	static ip_address=192.168.0.202/24
 	static routers=192.168.0.200
 	static domain_name_servers=192.168.0.200
 __END__
+
+	cat > $ROOTDIR/etc/init.d/loopback.sh << __END__
+#!/bin/sh -e
+### BEGIN INIT INFO
+# Provides:          loopback
+# Required-Start:    mountkernfs $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:      
+# Short-Description: Raise loopback interface.
+### END INIT INFO
+
+if [ -x /sbin/ip ]; then
+	ip link set lo up
+	exit 0
+fi
+__END__
+	chroot $ROOTDIR update-rc.d loopback.sh defaults
+
+	sed -i 's/# Required-\(Start:\|Stop: \)\(.*\)/# Required-\1\2 dbus/' $ROOTDIR/etc/init.d/dnsmasq
+	chroot $ROOTDIR update-rc.d dnsmasq defaults
+
+	sed -i 's/# Required-\(Start:\|Stop: \)\(.*\)/# Required-\1\2 dnsmasq dbus/' $ROOTDIR/etc/init.d/dhcpcd
+	chroot $ROOTDIR update-rc.d dhcpcd defaults
 
 	# pyneo-resolvconf installs new resolv.conf - revert that change
 	cp /etc/resolv.conf $ROOTDIR/etc/resolv.conf
