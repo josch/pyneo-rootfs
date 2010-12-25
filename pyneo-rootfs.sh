@@ -337,7 +337,7 @@ if [ \$DEVICE = "gta01" ]; then
 Section "InputClass"
 	Identifier	"s3c2410 TouchScreen"
 	MatchProduct	"s3c2410 TouchScreen"
-	Option	"Calibration"	"69, 922, 950, 65"
+	Option	"Calibration"	"69 922 950 65"
 	Option	"SwapAxes"	"1"
 EndSection
 __XORG__
