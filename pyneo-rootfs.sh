@@ -23,7 +23,7 @@ for APP in "cdebootstrap" "curl" "chroot"; do
 done
 
 # cdebotstrap
-DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
+DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,procps,mtd-utils,ntpdate,debconf-english"
 DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils"
 #DEPS_WLAN="wpasupplicant"
 #DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
