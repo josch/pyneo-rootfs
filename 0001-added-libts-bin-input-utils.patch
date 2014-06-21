@@ -1,0 +1,34 @@
+From f8b4a752dc41e81bca114e92838a41915fd87cb4 Mon Sep 17 00:00:00 2001
+From: josch <josch@pyneo.org>
+Date: Mon, 7 Dec 2009 08:29:45 +0000
+Subject: [PATCH] added libts-bin, input-utils
+
+---
+ pyneo-rootfs.sh |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/pyneo-rootfs.sh b/pyneo-rootfs.sh
+index 0063247..9221ede 100755
+--- a/pyneo-rootfs.sh
++++ b/pyneo-rootfs.sh
+@@ -307,7 +307,7 @@ if [ \$DEVICE = "gta01" ]; then
+ 	print_exit_status \$?
+ 
+ 	echo -n "Appending sound module."
+-	echo "snd-soc-neo1973-wm8753" > /etc/modules
++	echo "snd-soc-neo1973-wm8753" >> /etc/modules
+ 	print_exit_status \$?
+ 
+ 	echo -n "Configuring host alias."
+@@ -332,7 +332,7 @@ else
+ 	print_exit_status \$?
+ 
+ 	echo -n "Appending sound module."	
+-	echo "snd-soc-neo1973-gta02-wm8753" > /etc/modules
++	echo "snd-soc-neo1973-gta02-wm8753" >> /etc/modules
+ 	print_exit_status \$?
+ 
+ 	echo -n "Configuring host alias."
+-- 
+1.6.3.1
+

@@ -1,0 +1,6 @@
+dd if=/dev/zero of=rootfs.ext3 bs=1 count=0 seek=1G
+mkfs.ext3 rootfs.ext3
+mount rootfs.ext3 mnt -o loop
+cdebootstrap --flavour=minimal --foreign --arch armel sid mnt http://localhost:3142/ftp.de.debian.org/debian
+umount mnt
+qemu-system-arm -nodefaults -nographic -M versatilepb -m 256 -kernel zImage-2.6.29.4 -hda rootfs.ext3 -append "root=/dev/sda console=ttyAMA0,115200n8" -serial stdio -net user -net nic

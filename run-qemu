@@ -1,0 +1,1 @@
+qemu-system-arm -M versatilepb -kernel vmlinuz-2.6.26-1-versatile -initrd initrd.img-2.6.26-1-versatile -hda debian_lenny_armel_pyneo_rootfs.qcow2 -append "root=/dev/sda1 console=ttyAMA0" -nographic -m 256
