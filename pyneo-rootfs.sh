@@ -2,7 +2,7 @@
 
 ROOTDIR="pyneo-chroot"
 DIST="sid"
-EFL=false
+EFL=true
 PYNEO=true
 XFCE=false
 XORG=true
@@ -23,11 +23,11 @@ for APP in "cdebootstrap" "curl" "chroot"; do
 done
 
 # cdebotstrap
-DEPS_SYSTEM="udev,module-init-tools,sysklogd,klogd,psmisc,mtd-utils,ntpdate,debconf-english"
-DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils,libts-bin"
+DEPS_SYSTEM="locales,udev,module-init-tools,sysklogd,klogd,procps,mtd-utils,ntpdate,debconf-english"
+DEPS_CONSOLE="screen,less,vim-tiny,console-tools,conspy,console-setup-mini,man-db,fbset,input-utils"
 #DEPS_WLAN="wpasupplicant"
 #DEPS_BT="bluez,bluez-utils,bluez-alsa,bluez-gstreamer"
-DEPS_NETMGMT="ifupdown,netbase,iputils-ping,dhcp3-client"
+DEPS_NETMGMT="iputils-ping,iproute,dnsutils"
 DEPS_NETAPPS="curl,wget,openssh-server,vpnc,rsync"
 cdebootstrap --include $DEPS_SYSTEM,$DEPS_CONSOLE,$DEPS_NETMGMT,$DEPS_NETAPPS --flavour=minimal $DIST $ROOTDIR http://ftp.debian.org/debian
 
@@ -43,18 +43,6 @@ echo "127.0.0.1 localhost" > $ROOTDIR/etc/hosts
 # /etc/resolv.conf
 # while building use host's resolv.conf
 cp /etc/resolv.conf $ROOTDIR/etc/resolv.conf
-# /etc/network/interfaces
-cat > $ROOTDIR/etc/network/interfaces << __END__
-auto lo
-iface lo inet loopback
-auto usb0
-iface usb0 inet static
-    address neo
-    netmask 255.255.255.0
-    network 192.168.0.0
-    gateway host
-    dns-nameservers host
-__END__
 # /etc/fstab
 cat > $ROOTDIR/etc/fstab << __END__
 # <file system> <mount point>   <type>  <options>                          <dump> <pass>
@@ -79,10 +67,10 @@ echo 'Acquire::PDiffs "0";' > $ROOTDIR/etc/apt/apt.conf.d/99no-pdiffs
 sed -i 's/\(PermitEmptyPasswords\) no/\1 yes/' $ROOTDIR/etc/ssh/sshd_config
 sed -i 's/\(root:\)[^:]*\(:\)/\1\/\/plGAV7Hp3Zo\2/' $ROOTDIR/etc/shadow
 # locales
-echo LANG="C" > $ROOTDIR/etc/default/locale
-#echo LANG="en_US.UTF-8" > $ROOTDIR/etc/default/locale
-#echo en_US.UTF-8 UTF-8 > $ROOTDIR/etc/locale.gen
-#chroot $ROOTDIR locale-gen
+#echo LANG="C" > $ROOTDIR/etc/default/locale
+echo LANG="en_US.UTF-8" > $ROOTDIR/etc/default/locale
+echo en_US.UTF-8 UTF-8 > $ROOTDIR/etc/locale.gen
+chroot $ROOTDIR locale-gen
 #
 echo set debconf/frontend Teletype | chroot $ROOTDIR debconf-communicate
 # disable startup message of screen
@@ -96,17 +84,6 @@ sed -i "s/\([2-6]:23:respawn:\/sbin\/getty 38400 tty[2-6]\)/#\1/" $ROOTDIR/etc/i
 # enable fs fixes
 sed -i "s/\(FSCKFIX=\)no/\1yes/" $ROOTDIR/etc/default/rcS
 
-# add enlightenment repository
-if $EFL; then
-	echo deb http://packages.enlightenment.org/debian $DIST main extras >> $ROOTDIR/etc/apt/sources.list
-	cat > $ROOTDIR/etc/apt/preferences << __END__
-Package: *
-Pin: origin packages.enlightenment.org 
-Pin-Priority: 1001
-__END__
-	curl http://packages.enlightenment.org/repo.key | chroot $ROOTDIR apt-key add -
-fi
-
 # add pyneo repository
 if $PYNEO; then
 	echo deb http://pyneo.org/debian/ / >> $ROOTDIR/etc/apt/sources.list
@@ -117,25 +94,18 @@ chroot $ROOTDIR apt-get update -qq
 
 # install enlightenment
 if $EFL; then
-	chroot $ROOTDIR apt-get install python-evas python-edje python-elementary python-emotion python-edbus libedje-bin -qq
+	chroot $ROOTDIR apt-get install libevas-svn-06-engines-core libevas-svn-06-engines-x python-ecore python-evas python-edje python-elementary python-edbus libedje-bin -qq
 fi
 
 # install xorg
 if $XORG; then
-	chroot $ROOTDIR apt-get install xorg xserver-xorg-input-tslib xserver-xorg-video-glamo nodm matchbox-window-manager -qq
+	chroot $ROOTDIR apt-get install xserver-xorg-video-glamo -qq
+	chroot $ROOTDIR apt-get install xserver-xorg-input-evdev nodm matchbox-window-manager -qq
 	# /etc/X11/xorg.conf
 	cat > $ROOTDIR/etc/X11/xorg.conf << __END__
 Section "Device"
        Identifier      "Configured Video Device"
        Driver          "fbdev"
-EndSection
-Section "InputDevice"
-        Identifier      "Configured Touchscreen"
-        Driver          "tslib"
-        Option          "CorePointer"           "true"
-        Option          "SendCoreEvents"        "true"
-        Option          "Device"                "/dev/input/event2"
-        Option          "Protocol"              "Auto"
 EndSection
 __END__
 	cat > $ROOTDIR/etc/skel/.xsession << __END__
@@ -154,17 +124,16 @@ NODM_X_OPTIONS='-nolisten tcp'
 NODM_MIN_SESSION_TIME=60
 __END__
 	echo allowed_users=anybody > $ROOTDIR/etc/X11/Xwrapper.config
+	mkdir -p $ROOTDIR/etc/X11/xorg.conf.d
 fi
 
 # install pyneo
 if $PYNEO; then
-	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --download-only
+	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf -qq --download-only
 	# an existing resolv.conf will prompt the user wether to overwrite it or not so delete it
 	rm $ROOTDIR/etc/resolv.conf
-	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf dnsmasq netplug -qq --no-download
+	chroot $ROOTDIR apt-get install pyneo-pyneod pyneo-pybankd python-pyneo gsm0710muxd python-ijon pyneo-resolvconf -qq --no-download
 
-	# let netplugd manage usb0
-	echo usb0 >> $ROOTDIR/etc/netplug/netplugd.conf
 	# configure dnsmasq
 	cat > $ROOTDIR/etc/dnsmasq.d/pyneo << __END__
 no-resolv
@@ -174,6 +143,54 @@ log-queries
 clear-on-reload
 domain-needed
 __END__
+
+	cat > $ROOTDIR/etc/dhcpcd.conf << __END__
+hostname
+
+option domain_name_servers, domain_name, domain_search, host_name
+option classless_static_routes
+
+option ntp_servers
+
+option interface_mtu
+
+require dhcp_server_identifier
+
+nohook lookup-hostname
+
+allowinterfaces usb0 wlan0
+
+interface usb0
+	static ip_address=192.168.0.202/24
+	static routers=192.168.0.200
+	static domain_name_servers=192.168.0.200
+__END__
+
+	cat > $ROOTDIR/etc/init.d/loopback.sh << __END__
+#!/bin/sh -e
+### BEGIN INIT INFO
+# Provides:          loopback
+# Required-Start:    mountkernfs $local_fs
+# Required-Stop:     $local_fs
+# Default-Start:     S
+# Default-Stop:      
+# Short-Description: Raise loopback interface.
+### END INIT INFO
+
+if [ -x /sbin/ip ]; then
+	ip link set lo up
+	exit 0
+fi
+__END__
+	chmod +x $ROOTDIR/etc/init.d/loopback.sh
+	chroot $ROOTDIR update-rc.d loopback.sh start 20 S
+
+	sed -i 's/# Required-\(Start:\|Stop: \)\(.*\)/# Required-\1\2 dbus/' $ROOTDIR/etc/init.d/dnsmasq
+	chroot $ROOTDIR update-rc.d dnsmasq start 20 2 3 4 5 . stop 80 1
+
+	sed -i 's/# Required-\(Start:\|Stop: \)\(.*\)/# Required-\1\2 dnsmasq dbus/' $ROOTDIR/etc/init.d/dhcpcd
+	chroot $ROOTDIR update-rc.d dhcpcd defaults
+
 	# pyneo-resolvconf installs new resolv.conf - revert that change
 	cp /etc/resolv.conf $ROOTDIR/etc/resolv.conf
 fi
@@ -217,7 +234,7 @@ __END__
 fi
 
 # modem
-echo KERNEL==\"s3c2410_serial[0-9]\",  NAME=\"ttySAC%n\" > $ROOTDIR/etc/udev/rules.d/51-calypso.rules
+echo KERNEL==\"s3c2410_serial[0-9]\",  SYMLINK=\"ttySAC%n\" > $ROOTDIR/etc/udev/rules.d/51-calypso.rules
 # kernel
 curl http://pyneo.org/downloads/gta0x/zImage-$KERNEL_VER-pyneo.bin > $ROOTDIR/boot/zImage-$KERNEL_VER-pyneo.bin
 ln -s zImage-$KERNEL_VER-pyneo.bin $ROOTDIR/boot/uImage-GTA01.bin
@@ -233,9 +250,20 @@ if $PYNEO; then
 fi
 
 # firstboot script
-cat > $ROOTDIR/usr/sbin/firstboot.sh << __END__
-#!/bin/sh
-rm -f /etc/rcS.d/S99firstboot
+cat > $ROOTDIR/etc/init.d/firstboot << __END__
+#!/bin/sh -e
+### BEGIN INIT INFO
+# Provides:          firstboot
+# Required-Start:    \$all
+# Required-Stop:     
+# Default-Start:     S
+# Default-Stop:
+# X-Interactive:     true
+
+### END INIT INFO
+
+update-rc.d -f firstboot remove
+
 [ -d /home/persistent ] || mkdir /home/persistent
 
 print_exit_status () {
@@ -244,15 +272,21 @@ print_exit_status () {
 	cols=\`expr \$cols - 8\`
 	if [ \$1 -ne 0 ]; then
 		tput cup \$lines \$cols
-		echo "\\033[1;31m[failed]\\033[0m"
+		tput setaf 1
+		echo "[failed]"
+		tput op
 	else
 		tput cup \$lines \$cols
-		echo "\\033[1;32m[ done ]\\033[0m"
+		tput setaf 2
+		echo "[ done ]"
+		tput op
 	fi
 }
 
 print_yellow () {
-	echo "\\033[1;33m\$1\\033[0m"
+	tput setaf 3
+	echo "\$1"
+	tput op
 }
 
 print_yellow "a/ aaQQaa/  a/      _a _a aajQaa     _aaQQaa       /_aQaaa  "
@@ -299,7 +333,14 @@ print_yellow "Running on \$DEVICE."
 
 echo -n "Calibrating Touchscreen."
 if [ \$DEVICE = "gta01" ]; then
-	echo -67 36365 -2733100 -48253 -310 45219816 65536 > /etc/pointercal
+	cat > /etc/X11/xorg.conf.d/s3c2410.conf << __XORG__
+Section "InputClass"
+	Identifier	"s3c2410 TouchScreen"
+	MatchProduct	"s3c2410 TouchScreen"
+	Option	"Calibration"	"69 922 950 65"
+	Option	"SwapAxes"	"1"
+EndSection
+__XORG__
 	print_exit_status \$?
 
 	echo -n "Appending MAC address to kernel boot parameters."
@@ -327,14 +368,21 @@ __HOSTS__
 	echo "/dev/mtdblock4  /media/nand     jffs2   defaults,noatime                   0      0" >> /etc/fstab
 	print_exit_status \$?
 else
-	echo -67 38667 -4954632 -51172 121 46965312 65536 > /etc/pointercal
+	cat > /etc/X11/xorg.conf.d/s3c2410.conf << __XORG__
+Section "InputClass"
+	Identifier	"s3c2410 TouchScreen"
+	MatchProduct	"s3c2410 TouchScreen"
+	Option	"Calibration"	"110 922 924 96"
+	Option	"SwapAxes"	"1"
+EndSection
+__XORG__
 	print_exit_status \$?
 
 	echo -n "Configuring glamo into xorg.conf."
 	sed -i 's/\(Driver          \)"fbdev"/\1"glamo"/' /etc/X11/xorg.conf
 	print_exit_status \$?
 
-	echo -n "Appending sound module."	
+	echo -n "Appending sound module."
 	echo "snd-soc-neo1973-gta02-wm8753" >> /etc/modules
 	print_exit_status \$?
 
@@ -354,7 +402,11 @@ __HOSTS__
 fi
 
 echo -n "Creating new user"
-useradd user -p //plGAV7Hp3Zo -s /bin/bash --create-home
+if [ -d /home/user ]; then
+	useradd user -p //plGAV7Hp3Zo -s /bin/bash
+else
+	useradd user -p //plGAV7Hp3Zo -s /bin/bash --create-home
+fi
 print_exit_status \$?
 
 echo -n "Mounting NAND."
@@ -366,24 +418,15 @@ echo "\$DEVICE" > /etc/hostname
 hostname "\$DEVICE"
 print_exit_status \$?
 
-echo -n "Bringing up usb networking."
-ifdown usb0
-sleep 3
-print_exit_status \$?
-
-echo -n "Updating package index..."
-apt-get update -qq
-print_exit_status \$?
-
 print_yellow "finished running firstboot tasks!"
 print_yellow "resuming normal boot..."
 sleep 3
 __END__
-chmod +x $ROOTDIR/usr/sbin/firstboot.sh
-ln -sf /usr/sbin/firstboot.sh $ROOTDIR/etc/rcS.d/S99firstboot
+chmod +x $ROOTDIR/etc/init.d/firstboot
+chroot $ROOTDIR update-rc.d firstboot start 99 S
 
 # cleanup
-chroot $ROOTDIR apt-get remove cdebootstrap-helper-rc.d -qq
+chroot $ROOTDIR apt-get remove cdebootstrap-helper-rc.d xserver-xorg-input-synaptics xserver-xorg-input-wacom -qq
 chroot $ROOTDIR apt-get clean -qq
 rm -f $ROOTDIR/etc/ssh/ssh_host_*
 rm -f $ROOTDIR/var/lib/apt/lists/*
